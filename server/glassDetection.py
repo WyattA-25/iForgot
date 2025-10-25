@@ -1,7 +1,13 @@
+import os
 from ultralytics import YOLO
 
-# Path to your dataset YAML (adjust if needed)
-data_path = r"C:\Users\DELL\Downloads\archive\new dataset 640x640\data.yaml"
+base_dir = os.path.dirname(os.path.dirname(__file__))  # one folder up from /server
+data_path = os.path.join(base_dir, "archive", "new dataset 640x640", "data.yaml")
+
+print("Using data.yaml from:", data_path)
+
+model = YOLO("yolov8n.pt")
+model.train(data=data_path, epochs=50, imgsz=640, batch=8, name="glasses-detector-local6")
 
 # Load a pretrained YOLOv8 model (for example, YOLOv8n)
 model = YOLO("yolov8n.pt")  # You can also try yolov8s.pt for a stronger model
