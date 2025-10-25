@@ -3,7 +3,7 @@ mode: train
 model: yolov8n.pt
 data: C:\Users\DELL\Desktop\Personal Projects\iForgot\yolov8-glasses-dataset-v1\new
   dataset 640x640\data.yaml
-epochs: 50
+epochs: 35
 time: null
 patience: 100
 batch: 8
