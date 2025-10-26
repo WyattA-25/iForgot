@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 3
+names: ['kunci_kos', 'kunci_motor', 'kunci_pagar']
+
+roboflow:
+  workspace: hsiao-cheng-yun
+  project: keys-8royn-dsgh2
+  version: 1
+  license: CC BY 4.0
+  url: https://app.roboflow.com/hsiao-cheng-yun/keys-8royn-dsgh2/1

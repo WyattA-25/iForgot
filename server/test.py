@@ -120,7 +120,7 @@ if len(detections_nms) > 0:
         color = colors[i % len(colors)]
         
         # Draw box
-        cv2.rectangle(img_result, (x1, y1), (x2, y2), color, 3)
+        cv2.rectangle(img_result, (x1, y1), (x2, y2), color, 10)
         
         # Draw label with rank and confidence
         label = f"#{i+1}: {conf:.2f}"
