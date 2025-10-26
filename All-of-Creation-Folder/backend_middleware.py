@@ -108,7 +108,7 @@ class CVModelInterface:
         self.models = {
             'keys_detection_model': YOLO('models/keys.pt'),              # ← YOUR MODEL HERE
             'wallet_detection_model': YOLO('models/wallets.pt'),          # ← YOUR MODEL HERE
-            'headphones_detection_model': YOLO('models/headphones.pt'),  # ← YOUR MODEL HERE
+            #'headphones_detection_model': YOLO('models/headphones.pt'),  # ← YOUR MODEL HERE
             'glasses_detection_model': YOLO('models/glasses.pt'),        # ← YOUR MODEL HERE
             #'phone_detection_model': YOLO('models/phone.pt'),            # ← YOUR MODEL HERE
             #'backpack_detection_model': YOLO('models/backpack.pt'),      # ← YOUR MODEL HERE
