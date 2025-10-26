@@ -1,11 +1,7 @@
 task: detect
 mode: train
 model: yolov8n.pt
-<<<<<<< HEAD
-data: c:\Users\DELL\Desktop\Personal Projects\iForgot\airpod\data.yaml
-=======
 data: c:\Users\enboy\gitStuff\GitHubProjects\iForgot\archive\new dataset 640x640\data.yaml
->>>>>>> 9c378a810c4f64d64eaea84ae80d9a4f2ae375e0
 epochs: 50
 time: null
 patience: 100
@@ -17,7 +13,7 @@ cache: false
 device: cpu
 workers: 8
 project: null
-name: glasses-detector-local64
+name: glasses-detector-local7
 exist_ok: false
 pretrained: true
 optimizer: auto
@@ -107,8 +103,4 @@ auto_augment: randaugment
 erasing: 0.4
 cfg: null
 tracker: botsort.yaml
-<<<<<<< HEAD
-save_dir: C:\Users\DELL\Desktop\Personal Projects\iForgot\runs\detect\glasses-detector-local64
-=======
-save_dir: C:\Users\enboy\gitStuff\GitHubProjects\iForgot\runs\detect\glasses-detector-local64
->>>>>>> 9c378a810c4f64d64eaea84ae80d9a4f2ae375e0
+save_dir: C:\Users\enboy\gitStuff\GitHubProjects\iForgot\runs\detect\glasses-detector-local7

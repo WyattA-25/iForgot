@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>iForgot - AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: #343541;
+            color: #ececf1;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body.light-mode {
+            background: #ffffff;
+            color: #1f1f1f;
+        }
+
+        .header {
+            background: #202123;
+            padding: 12px 20px;
+            border-bottom: 1px solid #444654;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body.light-mode .header {
+            background: #f7f7f8;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .header h1:hover {
+            opacity: 0.8;
+        }
+
+        .header-icon {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .message {
+            display: flex;
+            gap: 16px;
+            padding: 20px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            background: #343541;
+            transition: background-color 0.3s ease;
+        }
+
+        body.light-mode .message.user {
+            background: #f7f7f8;
+        }
+
+        .message.assistant {
+            background: #444654;
+            transition: background-color 0.3s ease;
+        }
+
+        body.light-mode .message.assistant {
+            background: #ffffff;
+            border-top: 1px solid #e5e5e5;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .avatar svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .avatar.user {
+            background: #5436da;
+        }
+
+        .avatar.assistant {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .message-content {
+            flex: 1;
+            line-height: 1.6;
+        }
+
+        .message-content img {
+            max-width: 300px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .message-content code {
+            background: #2d2e3a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        body.light-mode .message-content code {
+            background: #f0f0f2;
+            color: #5436da;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 10px 0;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #ececf1;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                opacity: 0.3;
+                transform: translateY(0);
+            }
+            30% {
+                opacity: 1;
+                transform: translateY(-10px);
+            }
+        }
+
+        .input-container {
+            padding: 20px;
+            background: #343541;
+            border-top: 1px solid #444654;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body.light-mode .input-container {
+            background: #ffffff;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .input-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #40414f;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body.light-mode .input-wrapper {
+            background: #f7f7f8;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            border: 1px solid #e5e5e5;
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: #565869;
+            color: #ececf1;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 18px;
+        }
+
+        .icon-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        body.light-mode .icon-button {
+            background: #e5e5e5;
+            color: #1f1f1f;
+        }
+
+        .icon-button:hover {
+            background: #6e6f7e;
+        }
+
+        body.light-mode .icon-button:hover {
+            background: #d4d4d4;
+        }
+
+        .icon-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #ececf1;
+            font-size: 15px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            max-height: 200px;
+            min-height: 24px;
+            transition: color 0.3s ease;
+            overflow: hidden;
+            line-height: 1.5;
+        }
+
+        body.light-mode textarea {
+            color: #1f1f1f;
+        }
+
+        body.light-mode textarea::placeholder {
+            color: #6b6b6b;
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .send-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .send-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .image-preview {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .image-preview:empty {
+            display: none;
+        }
+
+        .preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .remove-preview {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ef4444;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .item-result {
+            background: #2d2e3a;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 12px;
+            border-left: 3px solid #667eea;
+            transition: background-color 0.3s ease;
+        }
+
+        body.light-mode .item-result {
+            background: #f0f0f2;
+            border-left: 3px solid #667eea;
+        }
+
+        .item-result h3 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .item-result p {
+            margin: 6px 0;
+            color: #b4b4b4;
+            transition: color 0.3s ease;
+        }
+
+        body.light-mode .item-result p {
+            color: #5a5a5a;
+        }
+
+        .item-result strong {
+            color: #ececf1;
+            transition: color 0.3s ease;
+        }
+
+        body.light-mode .item-result strong {
+            color: #1f1f1f;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 60px 20px;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .welcome-message h2 {
+            font-size: 32px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-message p {
+            color: #b4b4b4;
+            font-size: 16px;
+            line-height: 1.6;
+            transition: color 0.3s ease;
+        }
+
+        body.light-mode .welcome-message p {
+            color: #5a5a5a;
+        }
+
+        .suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .suggestion-card {
+            background: #40414f;
+            padding: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #565869;
+        }
+
+        body.light-mode .suggestion-card {
+            background: #f7f7f8;
+            border: 1px solid #e5e5e5;
+        }
+
+        .suggestion-card:hover {
+            background: #4a4b5a;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        body.light-mode .suggestion-card:hover {
+            background: #ececee;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .suggestion-card strong {
+            display: block;
+            margin-bottom: 6px;
+            color: #ececf1;
+            transition: color 0.3s ease;
+        }
+
+        body.light-mode .suggestion-card strong {
+            color: #1f1f1f;
+        }
+
+        .suggestion-card span {
+            color: #b4b4b4;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        body.light-mode .suggestion-card span {
+            color: #5a5a5a;
+        }
+
+        /* Mobile optimizations for portrait and landscape */
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 16px;
+            }
+
+            .header h1 {
+                font-size: 16px;
+            }
+
+            .header-icon {
+                width: 24px;
+                height: 24px;
+            }
+
+            .header-icon svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            .chat-container {
+                padding: 16px;
+            }
+
+            .message {
+                padding: 16px;
+                gap: 12px;
+            }
+
+            .avatar {
+                width: 32px;
+                height: 32px;
+            }
+
+            .avatar svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .input-container {
+                padding: 12px;
+            }
+
+            .input-wrapper {
+                padding: 10px;
+            }
+
+            .icon-button {
+                width: 36px;
+                height: 36px;
+            }
+
+            .icon-button svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .send-button {
+                width: 36px;
+                height: 36px;
+            }
+
+            .send-button svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            textarea {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+
+            .suggestions {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .welcome-message {
+                padding: 40px 16px;
+            }
+
+            .welcome-message h2 {
+                font-size: 24px;
+            }
+        }
+
+        /* Landscape mobile optimizations */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .chat-container {
+                padding: 12px;
+            }
+
+            .message {
+                padding: 12px;
+                gap: 10px;
+            }
+
+            .input-container {
+                padding: 10px;
+            }
+
+            .welcome-message {
+                padding: 20px 16px;
+            }
+
+            .welcome-message h2 {
+                font-size: 20px;
+                margin-bottom: 12px;
+            }
+
+            .welcome-message p {
+                font-size: 14px;
+            }
+
+            .suggestions {
+                margin-top: 20px;
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Tablet optimizations */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .suggestions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        /* Custom Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+        }
+
+        .modal-content h3 {
+            color: #1f1f1f;
+            font-size: 24px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .modal-content p {
+            color: #5a5a5a;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .modal-button {
+            padding: 14px 32px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+        }
+
+        .modal-button.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .modal-button.secondary {
+            background: #f0f0f2;
+            color: #5a5a5a;
+        }
+
+        .modal-button.secondary:hover {
+            background: #e5e5e7;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                padding: 32px 24px;
+            }
+
+            .modal-content h3 {
+                font-size: 20px;
+            }
+
+            .modal-content p {
+                font-size: 14px;
+            }
+
+            .modal-buttons {
+                flex-direction: column-reverse;
+            }
+
+            .modal-button {
+                width: 100%;
+            }
+        }
+
+        /* Custom Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .modal-header svg {
+            width: 20px;
+            height: 20px;
+            color: #5436da;
+        }
+
+        .modal-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f1f1f;
+            margin: 0;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f1f1f;
+            margin-bottom: 8px;
+        }
+
+        .modal-description {
+            font-size: 14px;
+            color: #6b6b6b;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        .modal-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-icon svg {
+            width: 32px;
+            height: 32px;
+            stroke: white;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .modal-button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+        }
+
+        .modal-button.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .modal-button.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .modal-button.secondary {
+            background: #f0f0f2;
+            color: #1f1f1f;
+        }
+
+        .modal-button.secondary:hover {
+            background: #e5e5e5;
+        }
+
+        .modal-link {
+            display: block;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #667eea;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-link:hover {
+            text-decoration: underline;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .status-badge.found {
+            background: #10b981;
+            color: white;
+        }
+
+        .status-badge.not-found {
+            background: #ef4444;
+            color: white;
+        }
+
+        .status-badge.searching {
+            background: #f59e0b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 onclick="clearChat()">
+            <div class="header-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+            </div>
+            iForgot
+        </h1>
+        <button class="icon-button" onclick="toggleTheme()" id="themeToggle" title="Toggle Theme">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+        </button>
+    </div>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="welcome-message">
+            <h2>Welcome to iForgot</h2>
+            <p>Upload an image of your lost item or describe what you're looking for. Our AI-powered computer vision system will help you locate it.</p>
+            
+            <div class="suggestions">
+                <div class="suggestion-card" onclick="useSuggestion('I lost my keys')">
+                    <strong>Lost Keys</strong>
+                    <span>Help me find my keys</span>
+                </div>
+                <div class="suggestion-card" onclick="useSuggestion('Looking for my wallet')">
+                    <strong>Lost Wallet</strong>
+                    <span>Locate my wallet</span>
+                </div>
+                <div class="suggestion-card" onclick="useSuggestion('Can you find my headphones?')">
+                    <strong>Lost Headphones</strong>
+                    <span>Find my headphones</span>
+                </div>
+                <div class="suggestion-card" onclick="useSuggestion('I need help finding my glasses')">
+                    <strong>Lost Glasses</strong>
+                    <span>Where are my glasses?</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="input-container">
+        <div class="input-wrapper">
+            <div class="input-actions">
+                <button class="icon-button" onclick="document.getElementById('imageInput').click()" title="Upload Image">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                    </svg>
+                </button>
+                <input type="file" id="imageInput" accept="image/*" multiple onchange="handleImageUpload(event)">
+            </div>
+            
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0;">
+                <div class="image-preview" id="imagePreview"></div>
+                <textarea 
+                    id="messageInput" 
+                    placeholder="Describe your lost item or upload an image..."
+                    rows="1"
+                    onkeydown="handleKeyPress(event)"
+                    oninput="autoResize(this)"
+                ></textarea>
+            </div>
+            
+            <button class="send-button" onclick="sendMessage()" id="sendButton">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Image Upload Modal -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                    <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+            </div>
+            
+            <h2 class="modal-title">Upload Photos</h2>
+            <p class="modal-description">To help locate your item more accurately, please upload a photo of what you're looking for.</p>
+            
+            <div class="modal-buttons">
+                <button class="modal-button secondary" onclick="skipUpload()">Skip for Now</button>
+                <button class="modal-button primary" onclick="proceedWithUpload()">Upload Photo</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedImages = [];
+        let conversationHistory = [];
+        let pendingMessageForUpload = '';
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function showUploadModal() {
+            document.getElementById('uploadModal').classList.add('active');
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.remove('active');
+        }
+
+        function proceedWithUpload() {
+            closeUploadModal();
+            document.getElementById('imageInput').click();
+        }
+        
+        function skipUpload() {
+            closeUploadModal();
+            // Clear the pending message without sending
+            sessionStorage.removeItem('pendingMessage');
+            pendingMessageForUpload = '';
+            // Keep the message in the input box so user can edit or try again
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('uploadModal');
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeUploadModal();
+                }
+            });
+        });
+
+        function handleImageUpload(event) {
+            const files = Array.from(event.target.files);
+            const previewContainer = document.getElementById('imagePreview');
+            
+            if (files.length === 0) return;
+            
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedImages.push({
+                        data: e.target.result,
+                        name: file.name
+                    });
+                    
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" alt="${file.name}">
+                        <button class="remove-preview" onclick="removeImage(${uploadedImages.length - 1})">×</button>
+                    `;
+                    previewContainer.appendChild(previewItem);
+                    
+                    // Check if there's a pending message after all images loaded
+                    if (uploadedImages.length === files.length) {
+                        const pendingMessage = sessionStorage.getItem('pendingMessage');
+                        if (pendingMessage) {
+                            document.getElementById('messageInput').value = pendingMessage;
+                            // Auto-send after a brief delay to show the preview
+                            setTimeout(() => {
+                                processMessage(pendingMessage, uploadedImages);
+                            }, 300);
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            event.target.value = '';
+        }
+
+        function removeImage(index) {
+            uploadedImages.splice(index, 1);
+            updateImagePreview();
+        }
+
+        function updateImagePreview() {
+            const previewContainer = document.getElementById('imagePreview');
+            previewContainer.innerHTML = '';
+            
+            uploadedImages.forEach((img, index) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                previewItem.innerHTML = `
+                    <img src="${img.data}" alt="${img.name}">
+                    <button class="remove-preview" onclick="removeImage(${index})">×</button>
+                `;
+                previewContainer.appendChild(previewItem);
+            });
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message && uploadedImages.length === 0) return;
+            
+            // If message exists but no images, show custom modal for image upload
+            if (message && uploadedImages.length === 0) {
+                // Store the message temporarily
+                pendingMessageForUpload = message;
+                sessionStorage.setItem('pendingMessage', message);
+                
+                // Show custom modal
+                showUploadModal();
+                return;
+            } else {
+                // Has images or no message, proceed normally
+                processMessage(message, uploadedImages);
+            }
+        }
+        
+        function processMessage(message, images) {
+            const input = document.getElementById('messageInput');
+            
+            // Add user message
+            addMessage('user', message, images);
+            
+            // Clear input
+            input.value = '';
+            input.style.height = 'auto';
+            const imagesToProcess = [...images];
+            uploadedImages = [];
+            document.getElementById('imagePreview').innerHTML = '';
+            
+            // Clear pending message
+            sessionStorage.removeItem('pendingMessage');
+            pendingMessageForUpload = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate AI response
+            setTimeout(() => {
+                hideTypingIndicator();
+                handleAIResponse(message, imagesToProcess);
+            }, 1500);
+        }
+
+        function addMessage(type, text, images = []) {
+            const container = document.getElementById('chatContainer');
+            const welcomeMsg = container.querySelector('.welcome-message');
+            if (welcomeMsg) {
+                welcomeMsg.remove();
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            let imagesHTML = '';
+            if (images.length > 0) {
+                imagesHTML = images.map(img => 
+                    `<img src="${img.data}" alt="${img.name}">`
+                ).join('');
+            }
+            
+            const avatarIcon = type === 'user' 
+                ? `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                     <circle cx="12" cy="7" r="4"></circle>
+                   </svg>`
+                : `<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                     <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
+                     <circle cx="8" cy="15" r="1.5"></circle>
+                     <circle cx="16" cy="15" r="1.5"></circle>
+                     <line x1="8" y1="19" x2="16" y2="19"></line>
+                     <line x1="12" y1="11" x2="12" y2="6"></line>
+                     <circle cx="12" cy="5" r="1"></circle>
+                   </svg>`;
+            
+            messageDiv.innerHTML = `
+                <div class="avatar ${type}">${avatarIcon}</div>
+                <div class="message-content">
+                    ${text ? `<p>${text}</p>` : ''}
+                    ${imagesHTML}
+                </div>
+            `;
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+            
+            conversationHistory.push({ type, text, images });
+        }
+
+        function showTypingIndicator() {
+            const container = document.getElementById('chatContainer');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message assistant';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="avatar assistant">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="10" rx="2" ry="2"></rect>
+                        <circle cx="8" cy="15" r="1.5"></circle>
+                        <circle cx="16" cy="15" r="1.5"></circle>
+                        <line x1="8" y1="19" x2="16" y2="19"></line>
+                        <line x1="12" y1="11" x2="12" y2="6"></line>
+                        <circle cx="12" cy="5" r="1"></circle>
+                    </svg>
+                </div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const indicator = document.getElementById('typingIndicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        async function handleAIResponse(userMessage, images) {
+            let response = '';
+            
+            if (images.length > 0) {
+                // Call backend API for actual CV detection
+                try {
+                    const apiResponse = await fetch('http://localhost:5000/api/find-item', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            image: images[0].data,  // Send first image
+                            query: userMessage
+                        })
+                    });
+                    
+                    const result = await apiResponse.json();
+                    
+                    if (result.success && result.found) {
+                        // Item found - show annotated image and results
+                        response = `
+                            <p>I've analyzed your image using our computer vision system.</p>
+                            <div class="item-result">
+                                <h3>Analysis Results</h3>
+                                <p><strong>Item Detected:</strong> ${result.item_type}</p>
+                                <p><strong>Model Used:</strong> ${result.model_used}</p>
+                                ${result.detections.map(det => `
+                                    <p><strong>Confidence:</strong> ${(det.confidence * 100).toFixed(1)}%</p>
+                                    <p><strong>Location:</strong> Bounding box at coordinates [${det.bbox.map(n => Math.round(n)).join(', ')}]</p>
+                                `).join('')}
+                                <p><strong>Status:</strong> <span class="status-badge found">Found</span></p>
+                            </div>
+                            <p style="margin-top: 12px;"><strong>Annotated Image:</strong></p>
+                            <img src="${result.annotated_image}" alt="Detected item with bounding box" style="max-width: 100%; border-radius: 8px; margin-top: 8px;">
+                            <p style="margin-top: 12px;">${result.message}</p>
+                        `;
+                    } else if (result.success && !result.found) {
+                        // No item detected
+                        response = `
+                            <p>I've analyzed your image using our computer vision system.</p>
+                            <div class="item-result">
+                                <h3>Analysis Results</h3>
+                                <p><strong>Item Searched:</strong> ${result.item_type}</p>
+                                <p><strong>Status:</strong> <span class="status-badge not-found">Not Found</span></p>
+                                <p style="margin-top: 12px;">${result.message}</p>
+                            </div>
+                            <p style="margin-top: 12px;">The system couldn't detect ${result.item_type} in your image. Try:</p>
+                            <p>• Upload a clearer photo<br>
+                            • Ensure the item is visible in the frame<br>
+                            • Try a different angle</p>
+                        `;
+                    } else {
+                        // API error
+                        response = `
+                            <p>There was an issue processing your image.</p>
+                            <p><strong>Error:</strong> ${result.error || 'Unknown error'}</p>
+                            <p style="margin-top: 12px;">Please try again or contact support if the issue persists.</p>
+                        `;
+                    }
+                } catch (error) {
+                    // Network or other error
+                    console.error('API Error:', error);
+                    response = `
+                        <p>I'm having trouble connecting to the computer vision service.</p>
+                        <div class="item-result">
+                            <h3>Connection Error</h3>
+                            <p>Make sure the backend server is running at <code>http://localhost:5000</code></p>
+                            <p style="margin-top: 12px;">To start the server, run:</p>
+                            <p><code>python backend_middleware.py</code></p>
+                        </div>
+                        <p style="margin-top: 12px;"><strong>For Development:</strong> The interface is currently showing simulated results below.</p>
+                    `;
+                    
+                    // Fall back to simulated response for demo
+                    response += `
+                        <div class="item-result" style="margin-top: 16px;">
+                            <h3>Simulated Analysis Results</h3>
+                            <p><strong>Item Detected:</strong> ${getRandomItem()}</p>
+                            <p><strong>Confidence:</strong> ${Math.floor(Math.random() * 20 + 80)}%</p>
+                            <p><strong>Status:</strong> <span class="status-badge searching">Demo Mode</span></p>
+                        </div>
+                    `;
+                }
+            } else if (userMessage.toLowerCase().includes('lost') || userMessage.toLowerCase().includes('find')) {
+                response = `
+                    <p>I understand you're looking for a lost item. To help you better, could you:</p>
+                    <p>1. Upload a photo of the item (or a similar item)<br>
+                    2. Describe the item in detail (color, size, distinguishing features)<br>
+                    3. Tell me where you last saw it</p>
+                    <p style="margin-top: 12px;">Our computer vision system can analyze images to help locate your item.</p>
+                `;
+            } else {
+                response = `
+                    <p>I'm here to help you find your lost items! Here's what I can do:</p>
+                    <div class="item-result">
+                        <h3>My Capabilities</h3>
+                        <p><strong>Image Recognition:</strong> Upload a photo and I'll identify the item</p>
+                        <p><strong>Object Detection:</strong> I can detect keys, wallets, headphones, glasses, and more</p>
+                        <p><strong>Smart Matching:</strong> I'll show you where the item is with bounding boxes and confidence scores</p>
+                    </div>
+                    <p style="margin-top: 12px;">To get started, you can upload an image of what you're looking for, or describe the item to me.</p>
+                `;
+            }
+            
+            addMessage('assistant', response);
+        }
+
+        function getRandomItem() {
+            const items = ['Wallet', 'Keys', 'Phone', 'Backpack', 'Laptop', 'Watch', 'Glasses', 'Umbrella'];
+            return items[Math.floor(Math.random() * items.length)];
+        }
+
+        function getRandomLocation() {
+            const locations = [
+                'Building A, 2nd Floor, Near Elevator',
+                'Cafeteria, Table 5',
+                'Library, Study Room 3',
+                'Parking Lot B, Section 2',
+                'Main Lobby, Reception Desk',
+                'Conference Room 401'
+            ];
+            return locations[Math.floor(Math.random() * locations.length)];
+        }
+
+        function getRandomTime() {
+            const times = [
+                '15 minutes ago',
+                '1 hour ago',
+                '2 hours ago',
+                'this morning at 9:30 AM',
+                'yesterday at 3:45 PM'
+            ];
+            return times[Math.floor(Math.random() * times.length)];
+        }
+
+        function useSuggestion(text) {
+            document.getElementById('messageInput').value = text;
+            sendMessage();
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                // Moon icon for dark mode toggle
+                themeToggle.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>`;
+                themeToggle.title = 'Toggle Dark Mode';
+                localStorage.setItem('theme', 'light');
+            } else {
+                // Sun icon for light mode toggle
+                themeToggle.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>`;
+                themeToggle.title = 'Toggle Light Mode';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                themeToggle.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>`;
+                themeToggle.title = 'Toggle Dark Mode';
+            }
+        });
+
+        function clearChat() {
+            const container = document.getElementById('chatContainer');
+            container.innerHTML = `
+                <div class="welcome-message">
+                    <h2>Welcome to iForgot</h2>
+                    <p>Upload an image of your lost item or describe what you're looking for. Our AI-powered computer vision system will help you locate it.</p>
+                    
+                    <div class="suggestions">
+                        <div class="suggestion-card" onclick="useSuggestion('I lost my keys')">
+                            <strong>Lost Keys</strong>
+                            <span>Help me find my keys</span>
+                        </div>
+                        <div class="suggestion-card" onclick="useSuggestion('Looking for my wallet')">
+                            <strong>Lost Wallet</strong>
+                            <span>Locate my wallet</span>
+                        </div>
+                        <div class="suggestion-card" onclick="useSuggestion('Can you find my headphones?')">
+                            <strong>Lost Headphones</strong>
+                            <span>Find my headphones</span>
+                        </div>
+                        <div class="suggestion-card" onclick="useSuggestion('I need help finding my glasses')">
+                            <strong>Lost Glasses</strong>
+                            <span>Where are my glasses?</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            conversationHistory = [];
+            uploadedImages = [];
+            document.getElementById('imagePreview').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
