@@ -5,10 +5,10 @@ import numpy as np
 import json
 
 # --- CONFIG ---
-image_path = r"C:\Users\DELL\Downloads\IMG_1576.jpg" #change this to your image path
+image_path = r"C:\Users\DELL\Downloads\20251025_234721.jpg" #change this to your image path
 
 base_dir = os.path.dirname(os.path.dirname(__file__))
-data_path = os.path.join(base_dir, "server", "models", "airpod.pt")
+data_path = os.path.join(base_dir, "server", "models", "wallet.pt")
 
 model_path = data_path
 window_size = 640
