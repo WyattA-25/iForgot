@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 8
+names: ['AirPods Pro', 'Buds2', 'GALAXY-BUDS-2', 'airpod2', 'airpod3', 'airpods', 'buds-pro', 'buds_live']
+
+roboflow:
+  workspace: sweetpotato-srnzx
+  project: device_detect
+  version: 3
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/sweetpotato-srnzx/device_detect/dataset/3
