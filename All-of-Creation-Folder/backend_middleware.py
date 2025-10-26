@@ -28,9 +28,10 @@ class ModelRouter:
             'headphones': 'headphones_detection_model',
             'glasses': 'glasses_detection_model',
             'phone': 'phone_detection_model',
-            'backpack': 'backpack_detection_model',
-            'laptop': 'laptop_detection_model',
+            'tablet': 'tablet_detection_model',
             'watch': 'watch_detection_model',
+            'laptop': 'laptop_detection_model',
+            'earbuds': 'earbud_detection_model',
         }
         
         # Keywords that map to item types
@@ -42,8 +43,8 @@ class ModelRouter:
             'purse': 'wallet',
             'headphone': 'headphones',
             'headphones': 'headphones',
-            'earbuds': 'headphones',
-            'airpods': 'headphones',
+            'earbuds': 'earbuds',
+            'airpods': 'earbuds',
             'glasses': 'glasses',
             'sunglasses': 'glasses',
             'spectacles': 'glasses',
@@ -84,79 +85,176 @@ class ModelRouter:
 
 
 class CVModelInterface:
-    """Interface for computer vision model predictions"""
+    """Interface for computer vision model predictions with sliding window + NMS"""
     
     def __init__(self):
-        # In production, these would be actual model instances
-        # For now, we'll simulate responses
-        pass
+        from ultralytics import YOLO
+        import os
+        
+        # Configuration
+        self.window_size = 640  # Size of sliding window
+        self.step_size = 320    # Step size for sliding window
+        self.conf_thresh = 0.25 # Confidence threshold
+        self.nms_iou_thresh = 0.4  # IoU threshold for NMS
+        self.top_n = 2  # Number of top detections to return
+        
+        # Check models directory exists
+        if not os.path.exists('models'):
+            os.makedirs('models')
+            print("⚠️  Created models/ directory. Please add your model files.")
+        
+        # TODO: Replace these paths with your actual model file names
+        print("Loading YOLO models with sliding window detection...")
+        self.models = {
+            'keys_detection_model': YOLO('models/keys.pt'),              # ← YOUR MODEL HERE
+            'wallet_detection_model': YOLO('models/wallets.pt'),          # ← YOUR MODEL HERE
+            'headphones_detection_model': YOLO('models/headphones.pt'),  # ← YOUR MODEL HERE
+            'glasses_detection_model': YOLO('models/glasses.pt'),        # ← YOUR MODEL HERE
+            #'phone_detection_model': YOLO('models/phone.pt'),            # ← YOUR MODEL HERE
+            #'backpack_detection_model': YOLO('models/backpack.pt'),      # ← YOUR MODEL HERE
+            #'laptop_detection_model': YOLO('models/laptop.pt'),          # ← YOUR MODEL HERE
+            #'watch_detection_model': YOLO('models/watch.pt'),            # ← YOUR MODEL HERE
+            'earbud_detection_model': YOLO('models/earbuds.pt'),            # ← YOUR MODEL HERE
+        }
+        print("✅ All models loaded successfully with sliding window detection!")
+    
+    def apply_nms(self, detections, iou_threshold=0.4):
+        """Apply Non-Maximum Suppression to remove overlapping boxes"""
+        import cv2
+        import numpy as np
+        
+        if len(detections) == 0:
+            return []
+        
+        # Convert to arrays for OpenCV NMS
+        boxes = np.array([d[0] for d in detections], dtype=np.float32)
+        scores = np.array([d[1] for d in detections], dtype=np.float32)
+        classes = np.array([d[2] for d in detections], dtype=np.int32)
+        
+        # Apply NMS per class
+        final_detections = []
+        for cls_id in np.unique(classes):
+            cls_mask = classes == cls_id
+            cls_boxes = boxes[cls_mask]
+            cls_scores = scores[cls_mask]
+            
+            # OpenCV NMS
+            indices = cv2.dnn.NMSBoxes(
+                cls_boxes.tolist(),
+                cls_scores.tolist(),
+                score_threshold=0.0,  # Already filtered by conf_thresh
+                nms_threshold=iou_threshold
+            )
+            
+            if len(indices) > 0:
+                indices = indices.flatten()
+                for idx in indices:
+                    original_idx = np.where(cls_mask)[0][idx]
+                    final_detections.append(detections[original_idx])
+        
+        return final_detections
     
     def predict(self, image: Image.Image, model_name: str) -> Dict:
         """
-        Run inference on image using specified model
+        Run inference using YOLO model with sliding window + NMS
         
-        Args:
-            image: PIL Image object
-            model_name: Name of the model to use
+        This method:
+        1. Splits large images into sliding windows
+        2. Runs detection on each window
+        3. Combines results from all windows
+        4. Applies NMS to remove overlaps
+        5. Returns top N highest confidence detections
+        """
+        import numpy as np
+        import cv2
+        
+        model = self.models.get(model_name)
+        if not model:
+            raise ValueError(f"Model {model_name} not found")
+        
+        # Convert PIL Image to numpy array (OpenCV format)
+        image_array = np.array(image)
+        
+        # Convert RGB to BGR (OpenCV uses BGR)
+        if len(image_array.shape) == 3 and image_array.shape[2] == 3:
+            image_array = cv2.cvtColor(image_array, cv2.COLOR_RGB2BGR)
+        
+        H, W = image_array.shape[:2]
+        
+        detections = []
+        
+        # --- SLIDING WINDOW DETECTION ---
+        print(f"Processing image {W}x{H} with sliding window (window={self.window_size}, step={self.step_size})...")
+        
+        for y in range(0, H, self.step_size):
+            for x in range(0, W, self.step_size):
+                x_end = min(x + self.window_size, W)
+                y_end = min(y + self.window_size, H)
+                sub_img = image_array[y:y_end, x:x_end]
+                
+                # Run YOLO on this window
+                results = model.predict(sub_img, conf=self.conf_thresh, verbose=False)
+                
+                # Extract detections from this window
+                for box in results[0].boxes:
+                    conf = float(box.conf)
+                    cls = int(box.cls)
+                    (x1, y1, x2, y2) = box.xyxy[0].tolist()
+                    
+                    # Convert local coordinates to global image coordinates
+                    global_box = [x + x1, y + y1, x + x2, y + y2]
+                    detections.append((global_box, conf, cls))
+        
+        print(f"Found {len(detections)} raw detections before NMS")
+        
+        # --- APPLY NMS ---
+        detections_nms = self.apply_nms(detections, self.nms_iou_thresh)
+        print(f"After NMS: {len(detections_nms)} detections remaining")
+        
+        # --- GET TOP N DETECTIONS ---
+        if len(detections_nms) > 0:
+            # Sort by confidence (highest first) and take top N
+            sorted_detections = sorted(detections_nms, key=lambda d: d[1], reverse=True)
+            top_detections = sorted_detections[:self.top_n]
             
-        Returns:
-            Dictionary containing bounding boxes and confidence scores
-        """
-        # SIMULATION: In production, this would call your actual CV models
-        # Example: Load model, run inference, return detections
-        
-        # Simulated detection result
-        # In real implementation, replace with actual model inference
-        detections = self._simulate_detection(image, model_name)
-        
-        return detections
-    
-    def _simulate_detection(self, image: Image.Image, model_name: str) -> Dict:
-        """
-        Simulate model detection (replace with actual model inference)
-        
-        Returns format:
-        {
-            'detections': [
-                {
-                    'bbox': [x1, y1, x2, y2],  # Bounding box coordinates
-                    'confidence': 0.95,         # Confidence score
-                    'class': 'keys'             # Detected class
-                }
-            ],
-            'found': True/False
-        }
-        """
-        width, height = image.size
-        
-        # Simulate finding an object (replace with real model)
-        import random
-        found = random.random() > 0.3  # 70% chance of finding item
-        
-        if found:
-            # Simulate bounding box coordinates (replace with model output)
-            x1 = random.randint(50, width // 2)
-            y1 = random.randint(50, height // 2)
-            x2 = random.randint(x1 + 100, width - 50)
-            y2 = random.randint(y1 + 100, height - 50)
-            
-            confidence = random.uniform(0.75, 0.99)
+            # Format results
+            result_detections = []
+            for i, (box, conf, cls) in enumerate(top_detections):
+                x1, y1, x2, y2 = map(int, box)
+                
+                # Get class name
+                class_name = model.names.get(cls, 'unknown') if hasattr(model, 'names') else 'object'
+                
+                result_detections.append({
+                    'bbox': [x1, y1, x2, y2],
+                    'confidence': float(conf),
+                    'class': class_name,
+                    'rank': i + 1  # Add rank for reference
+                })
+                
+                print(f"   Top #{i+1}: Confidence {conf:.3f}, Box [{x1}, {y1}, {x2}, {y2}]")
             
             return {
-                'detections': [
-                    {
-                        'bbox': [x1, y1, x2, y2],
-                        'confidence': confidence,
-                        'class': model_name.replace('_detection_model', '')
-                    }
-                ],
-                'found': True
+                'detections': result_detections,
+                'found': True,
+                'stats': {
+                    'raw_detections': len(detections),
+                    'after_nms': len(detections_nms),
+                    'returned': len(result_detections)
+                }
             }
         else:
+            print("No detections found above confidence threshold")
             return {
                 'detections': [],
-                'found': False
+                'found': False,
+                'stats': {
+                    'raw_detections': len(detections),
+                    'after_nms': 0,
+                    'returned': 0
+                }
             }
+    
 
 
 class ImageAnnotator:
@@ -193,7 +291,7 @@ class ImageAnnotator:
             x1, y1, x2, y2 = bbox
             
             # Draw rectangle with thick lines
-            line_width = 4
+            line_width = 10
             draw.rectangle(
                 [(x1, y1), (x2, y2)],
                 outline='#667eea',

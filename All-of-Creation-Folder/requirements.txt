@@ -1,0 +1,21 @@
+# Core Flask dependencies
+Flask==3.0.0
+flask-cors==4.0.0
+Pillow==10.1.0
+numpy==1.24.3
+
+# Computer Vision - Required for YOLO models
+torch==2.1.0
+torchvision==0.16.0
+ultralytics==8.0.200
+opencv-python==4.8.1.78
+
+# Optional: For production deployment
+# gunicorn==21.2.0
+# redis==5.0.0
+# flask-limiter==3.5.0
+# celery==5.3.4
+
+# Optional: For monitoring and logging
+# sentry-sdk[flask]==1.38.0
+# prometheus-flask-exporter==0.22.4

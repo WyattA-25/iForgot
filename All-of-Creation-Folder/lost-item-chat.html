@@ -911,6 +911,132 @@
             background: #f59e0b;
             color: white;
         }
+
+        .quick-actions-bar {
+            padding: 6px 20px;
+            background: #343541;
+            border-top: 1px solid #444654;
+            display: none;
+            gap: 6px;
+            flex-wrap: nowrap;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .quick-actions-bar.show {
+            display: flex;
+        }
+
+        body.light-mode .quick-actions-bar {
+            background: #ffffff;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .quick-action-btn {
+            padding: 5px 12px;
+            background: #444654;
+            border: 1px solid #565869;
+            border-radius: 16px;
+            color: #ececf1;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .quick-action-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+        }
+
+        body.light-mode .quick-action-btn {
+            background: #f0f0f2;
+            border: 1px solid #d9d9e3;
+            color: #1f1f1f;
+        }
+
+        .quick-action-btn:hover {
+            background: #565869;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        body.light-mode .quick-action-btn:hover {
+            background: #e3e3e8;
+            border-color: #c0c0ca;
+        }
+
+        .quick-action-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Image Zoom Modal */
+        .image-zoom-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            cursor: zoom-out;
+            animation: fadeIn 0.2s ease-in;
+        }
+
+        .image-zoom-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .zoomed-image {
+            max-width: 95%;
+            max-height: 95%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .zoom-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 10001;
+        }
+
+        .zoom-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .message-content img {
+            cursor: zoom-in;
+            transition: opacity 0.2s;
+        }
+
+        .message-content img:hover {
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
@@ -945,13 +1071,13 @@
             <p>Upload an image of your lost item or describe what you're looking for. Our AI-powered computer vision system will help you locate it.</p>
             
             <div class="suggestions">
-                <div class="suggestion-card" onclick="useSuggestion('I lost my keys')">
-                    <strong>Lost Keys</strong>
-                    <span>Help me find my keys</span>
-                </div>
                 <div class="suggestion-card" onclick="useSuggestion('Looking for my wallet')">
                     <strong>Lost Wallet</strong>
                     <span>Locate my wallet</span>
+                </div>
+                <div class="suggestion-card" onclick="useSuggestion('I lost my keys')">
+                    <strong>Lost Keys</strong>
+                    <span>Help me find my keys</span>
                 </div>
                 <div class="suggestion-card" onclick="useSuggestion('Can you find my headphones?')">
                     <strong>Lost Headphones</strong>
@@ -963,6 +1089,43 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="quick-actions-bar" id="quickActionsBar">
+        <button class="quick-action-btn" onclick="useSuggestion('Looking for my wallet')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
+                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
+                <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
+            </svg>
+            Wallet
+        </button>
+        <button class="quick-action-btn" onclick="useSuggestion('I lost my keys')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="7" cy="17" r="3"></circle>
+                <path d="M10 17h11"></path>
+                <path d="M21 7l-3 3 3 3"></path>
+                <path d="M15 7l-3 3 3 3"></path>
+            </svg>
+            Keys
+        </button>
+        <button class="quick-action-btn" onclick="useSuggestion('Can you find my headphones?')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+                <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+            </svg>
+            Headphones
+        </button>
+        <button class="quick-action-btn" onclick="useSuggestion('I need help finding my glasses')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="6" cy="15" r="4"></circle>
+                <circle cx="18" cy="15" r="4"></circle>
+                <path d="M14 15a2 2 0 0 0-2-2 2 2 0 0 0-2 2"></path>
+                <path d="M2.5 13 1 12"></path>
+                <path d="M22.5 13 24 12"></path>
+            </svg>
+            Glasses
+        </button>
     </div>
 
     <div class="input-container">
@@ -1015,6 +1178,12 @@
                 <button class="modal-button primary" onclick="proceedWithUpload()">Upload Photo</button>
             </div>
         </div>
+    </div>
+
+    <!-- Image Zoom Modal -->
+    <div class="image-zoom-overlay" id="imageZoomOverlay" onclick="closeImageZoom()">
+        <button class="zoom-close" onclick="closeImageZoom()">×</button>
+        <img class="zoomed-image" id="zoomedImage" src="" alt="Zoomed image">
     </div>
 
     <script>
@@ -1178,6 +1347,8 @@
             const welcomeMsg = container.querySelector('.welcome-message');
             if (welcomeMsg) {
                 welcomeMsg.remove();
+                // Show the quick actions bar when chat starts
+                document.getElementById('quickActionsBar').classList.add('show');
             }
             
             const messageDiv = document.createElement('div');
@@ -1214,6 +1385,9 @@
             
             container.appendChild(messageDiv);
             container.scrollTop = container.scrollHeight;
+            
+            // Make images zoomable
+            makeImagesZoomable();
             
             conversationHistory.push({ type, text, images });
         }
@@ -1253,8 +1427,93 @@
             }
         }
 
+        // Item type detection (matches backend logic)
+        function detectItemType(query) {
+            const queryLower = query.toLowerCase();
+            const itemMap = {
+                'key': 'keys',
+                'keys': 'keys',
+                'keychain': 'keys',
+                'wallet': 'wallet',
+                'purse': 'wallet',
+                'headphone': 'headphones',
+                'headphones': 'headphones',
+                'earbuds': 'headphones',
+                'airpods': 'headphones',
+                'glasses': 'glasses',
+                'sunglasses': 'glasses',
+                'spectacles': 'glasses',
+                'phone': 'phone',
+                'mobile': 'phone',
+                'cellphone': 'phone',
+                'smartphone': 'phone',
+                'backpack': 'backpack',
+                'bag': 'backpack',
+                'laptop': 'laptop',
+                'computer': 'laptop',
+                'notebook': 'laptop',
+                'watch': 'watch',
+                'smartwatch': 'watch'
+            };
+            
+            for (const [keyword, itemType] of Object.entries(itemMap)) {
+                if (queryLower.includes(keyword)) {
+                    return itemType;
+                }
+            }
+            
+            return null;
+        }
+
+        // Capitalize first letter of item name
+        function capitalizeItem(item) {
+            if (!item) return '';
+            return item.charAt(0).toUpperCase() + item.slice(1);
+        }
+
+        // Convert bbox coordinates to position description
+        function getLocationDescription(bbox, imageWidth, imageHeight) {
+            const [x1, y1, x2, y2] = bbox;
+            const centerX = (x1 + x2) / 2;
+            const centerY = (y1 + y2) / 2;
+            
+            // Determine horizontal position
+            let horizontal = '';
+            if (centerX < imageWidth * 0.33) {
+                horizontal = 'Left';
+            } else if (centerX < imageWidth * 0.67) {
+                horizontal = 'Center';
+            } else {
+                horizontal = 'Right';
+            }
+            
+            // Determine vertical position
+            let vertical = '';
+            if (centerY < imageHeight * 0.33) {
+                vertical = 'Top';
+            } else if (centerY < imageHeight * 0.67) {
+                vertical = 'Middle';
+            } else {
+                vertical = 'Bottom';
+            }
+            
+            // Combine (e.g., "Top Left", "Center", "Bottom Right")
+            if (vertical === 'Middle' && horizontal === 'Center') {
+                return 'Center';
+            } else if (vertical === 'Middle') {
+                return horizontal;
+            } else if (horizontal === 'Center') {
+                return vertical;
+            } else {
+                return `${vertical} ${horizontal}`;
+            }
+        }
+
         async function handleAIResponse(userMessage, images) {
             let response = '';
+            
+            // Detect what item the user is looking for
+            const detectedItemType = detectItemType(userMessage);
             
             if (images.length > 0) {
                 // Call backend API for actual CV detection
@@ -1273,18 +1532,31 @@
                     const result = await apiResponse.json();
                     
                     if (result.success && result.found) {
+                        // Get image dimensions for location calculation
+                        const img = new Image();
+                        img.src = images[0].data;
+                        const imageWidth = img.naturalWidth || 1920;
+                        const imageHeight = img.naturalHeight || 1080;
+                        
                         // Item found - show annotated image and results
+                        const detectionsHTML = result.detections.map((det, index) => {
+                            const location = getLocationDescription(det.bbox, imageWidth, imageHeight);
+                            return `
+                                <div style="margin-left: 20px; margin-top: 8px;">
+                                    <p><strong>Box ${index + 1}:</strong></p>
+                                    <p style="margin-left: 15px;">Confidence: ${(det.confidence * 100).toFixed(1)}%</p>
+                                    <p style="margin-left: 15px;">Location: ${location}</p>
+                                </div>
+                            `;
+                        }).join('');
+                        
                         response = `
                             <p>I've analyzed your image using our computer vision system.</p>
                             <div class="item-result">
                                 <h3>Analysis Results</h3>
-                                <p><strong>Item Detected:</strong> ${result.item_type}</p>
-                                <p><strong>Model Used:</strong> ${result.model_used}</p>
-                                ${result.detections.map(det => `
-                                    <p><strong>Confidence:</strong> ${(det.confidence * 100).toFixed(1)}%</p>
-                                    <p><strong>Location:</strong> Bounding box at coordinates [${det.bbox.map(n => Math.round(n)).join(', ')}]</p>
-                                `).join('')}
-                                <p><strong>Status:</strong> <span class="status-badge found">Found</span></p>
+                                <p><strong>Item Detected:</strong> ${capitalizeItem(result.item_type)}</p>
+                                ${detectionsHTML}
+                                <p style="margin-top: 12px;"><strong>Status:</strong> <span class="status-badge found">Found</span></p>
                             </div>
                             <p style="margin-top: 12px;"><strong>Annotated Image:</strong></p>
                             <img src="${result.annotated_image}" alt="Detected item with bounding box" style="max-width: 100%; border-radius: 8px; margin-top: 8px;">
@@ -1296,7 +1568,8 @@
                             <p>I've analyzed your image using our computer vision system.</p>
                             <div class="item-result">
                                 <h3>Analysis Results</h3>
-                                <p><strong>Item Searched:</strong> ${result.item_type}</p>
+                                <p><strong>Item Searched:</strong> ${capitalizeItem(result.item_type)}</p>
+                                <p><strong>Model Used:</strong> ${result.model_used}</p>
                                 <p><strong>Status:</strong> <span class="status-badge not-found">Not Found</span></p>
                                 <p style="margin-top: 12px;">${result.message}</p>
                             </div>
@@ -1314,37 +1587,57 @@
                         `;
                     }
                 } catch (error) {
-                    // Network or other error
+                    // Network or other error - show instructions and demo
                     console.error('API Error:', error);
                     response = `
-                        <p>I'm having trouble connecting to the computer vision service.</p>
+                        <p>⚠️ Backend server is not running. Starting in demo mode...</p>
                         <div class="item-result">
-                            <h3>Connection Error</h3>
-                            <p>Make sure the backend server is running at <code>http://localhost:5000</code></p>
-                            <p style="margin-top: 12px;">To start the server, run:</p>
-                            <p><code>python backend_middleware.py</code></p>
+                            <h3>🔧 Setup Required</h3>
+                            <p>To use real computer vision detection:</p>
+                            <p>1. Open a terminal<br>
+                            2. Run: <code>python backend_middleware.py</code><br>
+                            3. Refresh this page</p>
                         </div>
-                        <p style="margin-top: 12px;"><strong>For Development:</strong> The interface is currently showing simulated results below.</p>
                     `;
                     
-                    // Fall back to simulated response for demo
-                    response += `
-                        <div class="item-result" style="margin-top: 16px;">
-                            <h3>Simulated Analysis Results</h3>
-                            <p><strong>Item Detected:</strong> ${getRandomItem()}</p>
-                            <p><strong>Confidence:</strong> ${Math.floor(Math.random() * 20 + 80)}%</p>
-                            <p><strong>Status:</strong> <span class="status-badge searching">Demo Mode</span></p>
-                        </div>
-                    `;
+                    // Fall back to demo response using detected item type
+                    if (detectedItemType) {
+                        const confidence = Math.floor(Math.random() * 20 + 80);
+                        response += `
+                            <div class="item-result" style="margin-top: 16px;">
+                                <h3>📱 Demo Mode Results</h3>
+                                <p><strong>You're looking for:</strong> ${capitalizeItem(detectedItemType)}</p>
+                                <p><strong>Simulated Confidence:</strong> ${confidence}%</p>
+                                <p><strong>Status:</strong> <span class="status-badge searching">Demo Mode</span></p>
+                                <p style="margin-top: 8px; font-size: 13px; color: #b4b4b4;">This is a simulated result. Connect the backend for real detection.</p>
+                            </div>
+                        `;
+                    } else {
+                        response += `
+                            <p style="margin-top: 12px;">I couldn't identify what item you're looking for. Please mention one of these items:</p>
+                            <p>keys, wallet, headphones, glasses, phone, backpack, laptop, or watch</p>
+                        `;
+                    }
                 }
             } else if (userMessage.toLowerCase().includes('lost') || userMessage.toLowerCase().includes('find')) {
-                response = `
-                    <p>I understand you're looking for a lost item. To help you better, could you:</p>
-                    <p>1. Upload a photo of the item (or a similar item)<br>
-                    2. Describe the item in detail (color, size, distinguishing features)<br>
-                    3. Tell me where you last saw it</p>
-                    <p style="margin-top: 12px;">Our computer vision system can analyze images to help locate your item.</p>
-                `;
+                // User is asking about a lost item but hasn't uploaded image yet
+                if (detectedItemType) {
+                    response = `
+                        <p>I understand you're looking for your ${detectedItemType}. To help you find it, I'll need:</p>
+                        <p>1. <strong>A photo</strong> of the ${detectedItemType} (or a similar one)<br>
+                        2. <strong>Location info</strong> where you last saw it<br>
+                        3. <strong>Distinctive features</strong> that help identify it</p>
+                        <p style="margin-top: 12px;">Our computer vision system can analyze images to help locate your ${detectedItemType}. Please upload a photo!</p>
+                    `;
+                } else {
+                    response = `
+                        <p>I understand you're looking for a lost item. To help you better, could you:</p>
+                        <p>1. Tell me <strong>what item</strong> you lost (keys, wallet, headphones, etc.)<br>
+                        2. Upload a <strong>photo</strong> of the item<br>
+                        3. Describe where you <strong>last saw it</strong></p>
+                        <p style="margin-top: 12px;">Our computer vision system can analyze images to help locate your item.</p>
+                    `;
+                }
             } else {
                 response = `
                     <p>I'm here to help you find your lost items! Here's what I can do:</p>
@@ -1354,7 +1647,7 @@
                         <p><strong>Object Detection:</strong> I can detect keys, wallets, headphones, glasses, and more</p>
                         <p><strong>Smart Matching:</strong> I'll show you where the item is with bounding boxes and confidence scores</p>
                     </div>
-                    <p style="margin-top: 12px;">To get started, you can upload an image of what you're looking for, or describe the item to me.</p>
+                    <p style="margin-top: 12px;">To get started, tell me what you're looking for and upload an image!</p>
                 `;
             }
             
@@ -1447,13 +1740,13 @@
                     <p>Upload an image of your lost item or describe what you're looking for. Our AI-powered computer vision system will help you locate it.</p>
                     
                     <div class="suggestions">
-                        <div class="suggestion-card" onclick="useSuggestion('I lost my keys')">
-                            <strong>Lost Keys</strong>
-                            <span>Help me find my keys</span>
-                        </div>
                         <div class="suggestion-card" onclick="useSuggestion('Looking for my wallet')">
                             <strong>Lost Wallet</strong>
                             <span>Locate my wallet</span>
+                        </div>
+                        <div class="suggestion-card" onclick="useSuggestion('I lost my keys')">
+                            <strong>Lost Keys</strong>
+                            <span>Help me find my keys</span>
                         </div>
                         <div class="suggestion-card" onclick="useSuggestion('Can you find my headphones?')">
                             <strong>Lost Headphones</strong>
@@ -1469,7 +1762,47 @@
             conversationHistory = [];
             uploadedImages = [];
             document.getElementById('imagePreview').innerHTML = '';
+            // Hide the quick actions bar when returning to home
+            document.getElementById('quickActionsBar').classList.remove('show');
         }
+
+        // Image zoom functionality
+        function openImageZoom(imageSrc) {
+            const overlay = document.getElementById('imageZoomOverlay');
+            const zoomedImage = document.getElementById('zoomedImage');
+            zoomedImage.src = imageSrc;
+            overlay.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        function closeImageZoom() {
+            const overlay = document.getElementById('imageZoomOverlay');
+            overlay.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+
+        // Make images in messages clickable for zoom
+        function makeImagesZoomable() {
+            const messageImages = document.querySelectorAll('.message-content img');
+            messageImages.forEach(img => {
+                // Remove old click listeners by cloning
+                const newImg = img.cloneNode(true);
+                img.parentNode.replaceChild(newImg, img);
+                
+                // Add new click listener
+                newImg.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    openImageZoom(this.src);
+                });
+            });
+        }
+
+        // Close zoom on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImageZoom();
+            }
+        });
     </script>
 </body>
 </html>
