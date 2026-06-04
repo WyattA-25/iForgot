@@ -59,7 +59,10 @@ Trained model weights live in server/models/. Datasets were labeled and exported
 
 ## Contributors
 
-- WyattA-25: designed the frontend, built the Flask middleware, and integrated the two.
-- Jonathanhsiao123: built the sliding-window detection and the training foundation.
-- Eyao24, FRFS30, and sfurniss1234: Worked towards finding viable datasets and processed a majority of the training weights.
-- Model training was split across the team, with each member training at least one model on their own device to speed up the overall process.
+## Contributors
+
+- @WyattA-25: designed the frontend chat interface, built the Flask middleware and serving API, and integrated the models, frontend, and backend.
+- @Jonathanhsiao123: developed the image slicing / sliding-window approach and several detection and training scripts; trained the keys, wallet, airpod, and glasses models.
+- @Eyao24: wrote the headphone and glasses detection scripts; trained the headphone and glasses models.
+- @FRFS30: trained and contributed the keys model.
+- @sfurniss1234: wrote the original project documentation.
