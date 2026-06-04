@@ -59,6 +59,6 @@ Trained model weights live in server/models/. Datasets were labeled and exported
 
 ## Contributors
 
-- Wyatt Allison: designed the frontend, built the Flask middleware, and integrated the two.
-- Johnathan: built the sliding-window detection and the training foundation.
+- WyattA-25: designed the frontend, built the Flask middleware, and integrated the two.
+- Jonathanhsiao123: built the sliding-window detection and the training foundation.
 - Model training was split across the team, with each member training one model on their own device to speed up the overall process.
