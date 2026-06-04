@@ -6,7 +6,7 @@ An AI-powered lost-item finder. Upload a photo of a room and iForgot locates com
 
 An uploaded image is routed to the right detection model, scanned with a sliding-window pass so large photos are covered in full, de-duplicated with non-maximum suppression, and returned with the highest-confidence matches drawn as bounding boxes.
 
-## 🌟 System Overview
+## System Overview
 
 ```
 ┌─────────────────┐        ┌──────────────────┐        ┌─────────────────────┐
