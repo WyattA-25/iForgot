@@ -138,7 +138,7 @@ python backend_middleware.py
 
 # You should see:
 # Loading YOLO models with sliding window detection...
-# ✅ All models loaded successfully with sliding window detection!
+# All models loaded successfully with sliding window detection!
 # * Running on http://127.0.0.1:5000
 ```
 
@@ -182,7 +182,7 @@ python test_api.py
 # ========================================
 # 
 # Health Check
-# ✅ Server is healthy
+# Server is healthy
 # 
 # Listing Available Models
 # Available Models:
@@ -377,7 +377,7 @@ python test_api.py
 
 ---
 
-**Congratulations! 🎉**
+**Congratulations!**
 
 Your iForgot system is now set up and ready to find lost items!
 

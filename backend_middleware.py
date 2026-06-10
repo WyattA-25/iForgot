@@ -22,15 +22,12 @@ class ModelRouter:
     
     def __init__(self):
         # Map item types to their corresponding model endpoints
+        # One entry per custom-trained model shipped in models/
         self.model_registry = {
             'keys': 'keys_detection_model',
             'wallet': 'wallet_detection_model',
             'headphones': 'headphones_detection_model',
             'glasses': 'glasses_detection_model',
-            'phone': 'phone_detection_model',
-            'tablet': 'tablet_detection_model',
-            'watch': 'watch_detection_model',
-            'laptop': 'laptop_detection_model',
             'earbuds': 'earbud_detection_model',
         }
         
@@ -48,17 +45,6 @@ class ModelRouter:
             'glasses': 'glasses',
             'sunglasses': 'glasses',
             'spectacles': 'glasses',
-            'phone': 'phone',
-            'mobile': 'phone',
-            'cellphone': 'phone',
-            'smartphone': 'phone',
-            'backpack': 'backpack',
-            'bag': 'backpack',
-            'laptop': 'laptop',
-            'computer': 'laptop',
-            'notebook': 'laptop',
-            'watch': 'watch',
-            'smartwatch': 'watch',
         }
     
     def identify_item_type(self, user_query: str) -> Optional[str]:
@@ -98,25 +84,18 @@ class CVModelInterface:
         self.nms_iou_thresh = 0.4  # IoU threshold for NMS
         self.top_n = 2  # Number of top detections to return
         
-        # Check models directory exists
-        if not os.path.exists('models'):
-            os.makedirs('models')
-            print("⚠️  Created models/ directory. Please add your model files.")
-        
-        # TODO: Replace these paths with your actual model file names
+        # Resolve models/ relative to this file so the app works from any cwd
+        models_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'models')
+
         print("Loading YOLO models with sliding window detection...")
         self.models = {
-            'keys_detection_model': YOLO('models/keys.pt'),              # ← YOUR MODEL HERE
-            'wallet_detection_model': YOLO('models/wallets.pt'),          # ← YOUR MODEL HERE
-            #'headphones_detection_model': YOLO('models/headphones.pt'),  # ← YOUR MODEL HERE
-            'glasses_detection_model': YOLO('models/glasses.pt'),        # ← YOUR MODEL HERE
-            #'phone_detection_model': YOLO('models/phone.pt'),            # ← YOUR MODEL HERE
-            #'backpack_detection_model': YOLO('models/backpack.pt'),      # ← YOUR MODEL HERE
-            #'laptop_detection_model': YOLO('models/laptop.pt'),          # ← YOUR MODEL HERE
-            #'watch_detection_model': YOLO('models/watch.pt'),            # ← YOUR MODEL HERE
-            'earbud_detection_model': YOLO('models/earbuds.pt'),            # ← YOUR MODEL HERE
+            'keys_detection_model': YOLO(os.path.join(models_dir, 'keys.pt')),
+            'wallet_detection_model': YOLO(os.path.join(models_dir, 'wallets.pt')),
+            'headphones_detection_model': YOLO(os.path.join(models_dir, 'headphones.pt')),
+            'glasses_detection_model': YOLO(os.path.join(models_dir, 'glasses.pt')),
+            'earbud_detection_model': YOLO(os.path.join(models_dir, 'earbuds.pt')),
         }
-        print("✅ All models loaded successfully with sliding window detection!")
+        print("All models loaded successfully with sliding window detection!")
     
     def apply_nms(self, detections, iou_threshold=0.4):
         """Apply Non-Maximum Suppression to remove overlapping boxes"""

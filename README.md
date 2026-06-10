@@ -39,6 +39,20 @@ An uploaded image is routed to the right detection model, scanned with a sliding
 - Pillow and NumPy for image handling
 - HTML / CSS / JavaScript frontend
 
+## Model Performance
+
+Validation metrics recorded from the Ultralytics training logs (runs/detect/*/results.csv). Each row is matched to the exact shipped weight file by hash.
+
+| Model | mAP@0.5 | Precision | Recall | Training |
+|---|---|---|---|---|
+| keys.pt | 0.993 | 0.962 | 0.981 | YOLOv8n, 50 epochs, 640px |
+| glasses.pt | 0.992 | 0.985 | 0.959 | YOLOv8n, 50 epochs, 640px |
+| headphones.pt | 0.830 | 0.782 | 0.865 | YOLOv8s, 640px |
+| earbuds.pt | pending | - | - | trained off-repo, validation pending |
+| wallets.pt | pending | - | - | trained off-repo, validation pending |
+
+Datasets were labeled and exported with Roboflow.
+
 ## API
 
 The Flask service runs on port 5000 and exposes:
@@ -50,14 +64,22 @@ The Flask service runs on port 5000 and exposes:
 ## Running Locally
 
 1. Install dependencies:
-   pip install flask flask-cors ultralytics pillow numpy
+   pip install -r requirements.txt
 2. Start the server:
-   python All-of-Creation-Folder/backend_middleware.py
-3. Open the frontend in a browser and upload an image.
+   python backend_middleware.py
+3. Open lost-item-chat.html in a browser and upload an image.
 
-Trained model weights live in server/models/. Datasets were labeled and exported with Roboflow.
+A step-by-step walkthrough is in docs/SETUP_GUIDE.md.
 
-## Contributors
+## Repository Layout
+
+- backend_middleware.py: Flask API with model routing, sliding-window inference, and NMS
+- lost-item-chat.html: chat-style frontend
+- models/: the five trained YOLOv8 weight files
+- training/: model training and detection scripts
+- docs/: setup guide
+
+A live deployed demo (Docker) is in progress; the link will land here.
 
 ## Contributors
 

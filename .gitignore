@@ -1,0 +1,23 @@
+# Datasets (Roboflow exports, kept local only)
+/airpod/
+/headphones/
+/keys.v1i.yolov8/
+/archive/
+
+# Training outputs (results.csv metrics are recorded in README)
+/runs/
+
+# Base pretrained weights (downloaded by ultralytics)
+/yolov8n.pt
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
