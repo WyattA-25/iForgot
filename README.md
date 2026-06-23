@@ -67,9 +67,30 @@ The Flask service runs on port 5000 and exposes:
    pip install -r requirements.txt
 2. Start the server:
    python backend_middleware.py
-3. Open lost-item-chat.html in a browser and upload an image.
+3. Open http://localhost:5000/ in your browser and upload an image. The Flask app
+   serves the chat UI directly, so there is no need to open the HTML file manually.
 
 A step-by-step walkthrough is in docs/SETUP_GUIDE.md.
+
+## Run with Docker
+
+The whole app (frontend, API, and models) ships as a single container.
+
+1. Build and run:
+   docker compose up --build
+2. Open http://localhost:7860/ and upload an image.
+
+Or with plain Docker:
+
+   docker build -t iforgot:latest .
+   docker run --rm -p 7860:7860 iforgot:latest
+
+The image installs CPU-only PyTorch to stay small, adds the system libs OpenCV needs,
+and serves with gunicorn. First boot takes a few seconds while the five models load; wait for
+"All models loaded successfully" in the logs. Health check: GET /api/health.
+
+Full deployment instructions (Hugging Face Spaces, Render, and the ship checklist) are
+in DEPLOY.md.
 
 ## Repository Layout
 
@@ -79,7 +100,13 @@ A step-by-step walkthrough is in docs/SETUP_GUIDE.md.
 - training/: model training and detection scripts
 - docs/: setup guide
 
-A live deployed demo (Docker) is in progress; the link will land here.
+## Live Demo
+
+Live URL: TODO add the deployed link here (see DEPLOY.md)
+
+The same container that runs locally is deployed to Hugging Face Spaces on the free CPU
+tier, chosen because the service holds five YOLO models plus PyTorch in memory. Platform
+tradeoffs, the memory budget, and the full ship checklist are in DEPLOY.md.
 
 ## Contributors
 

@@ -5,13 +5,24 @@ Pillow==10.1.0
 numpy==1.24.3
 
 # Computer Vision - Required for YOLO models
+# NOTE: In Docker we install CPU-only torch from the PyTorch CPU index
+# (https://download.pytorch.org/whl/cpu) to avoid the multi-GB CUDA wheels.
+# See the Dockerfile. These pins are what that CPU build resolves to.
 torch==2.1.0
 torchvision==0.16.0
-ultralytics==8.0.200
+# Bumped from 8.0.200: some shipped weights (e.g. headphones.pt) were trained on a
+# newer ultralytics and pickle classes (DFLoss) that 8.0.200 lacks, which crashes
+# torch.load at startup. 8.3.x loads both the old (keys/wallets) and newer weights.
+ultralytics==8.3.0
+# ultralytics depends on opencv-python; pin it so only ONE opencv is installed
+# (leaving it unpinned makes pip also pull a second, newer opencv). The Docker
+# image adds libgl1 + libglib2.0-0 so this imports on python:slim. See Dockerfile.
 opencv-python==4.8.1.78
 
+# Production WSGI server (used by Docker / deploy)
+gunicorn==21.2.0
+
 # Optional: For production deployment
-# gunicorn==21.2.0
 # redis==5.0.0
 # flask-limiter==3.5.0
 # celery==5.3.4

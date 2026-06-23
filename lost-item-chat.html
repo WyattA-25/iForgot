@@ -1518,7 +1518,7 @@
             if (images.length > 0) {
                 // Call backend API for actual CV detection
                 try {
-                    const apiResponse = await fetch('http://localhost:5000/api/find-item', {
+                    const apiResponse = await fetch('/api/find-item', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

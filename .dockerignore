@@ -1,0 +1,42 @@
+# Keep the build context small and never ship datasets, training runs, or tooling.
+
+# Version control
+.git
+.gitignore
+
+# Datasets (Roboflow exports) - large, never needed at runtime
+airpod/
+headphones/
+keys.v1i.yolov8/
+archive/
+
+# Training outputs and base pretrained weights
+runs/
+yolov8n.pt
+
+# Training + test scripts (not part of the served app)
+training/
+test_api.py
+
+# Python cruft
+__pycache__/
+**/__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Docs and markdown
+docs/
+*.md
+
+# Deploy / compose metadata (not needed inside the image)
+Dockerfile
+.dockerignore
+docker-compose.yml
+render.yaml
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

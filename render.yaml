@@ -1,0 +1,14 @@
+# Render Blueprint for the iForgot container (one of several deploy options).
+# See DEPLOY.md. Hugging Face Spaces is the recommended free path because this
+# app loads five YOLO models + torch into memory; Render's free/starter 512 MB
+# instances will OOM, so a 2 GB plan is specified here.
+#
+# Render injects its own $PORT and the container binds it (CMD uses ${PORT}).
+
+services:
+  - type: web
+    name: iforgot
+    runtime: docker
+    plan: standard          # 2 GB RAM. Do NOT use free/starter (512 MB -> OOM).
+    healthCheckPath: /api/health
+    autoDeploy: false

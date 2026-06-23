@@ -4,8 +4,9 @@ Routes images to appropriate computer vision models based on item type
 Returns annotated images with bounding boxes and confidence scores
 """
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
+import os
 import base64
 import io
 import json
@@ -80,7 +81,7 @@ class CVModelInterface:
         # Configuration
         self.window_size = 640  # Size of sliding window
         self.step_size = 320    # Step size for sliding window
-        self.conf_thresh = 0.25 # Confidence threshold
+        self.conf_thresh = 0.15 # Confidence threshold (lowered from 0.25 for better recall on real-world photos)
         self.nms_iou_thresh = 0.4  # IoU threshold for NMS
         self.top_n = 2  # Number of top detections to return
         
@@ -183,7 +184,19 @@ class CVModelInterface:
                     # Convert local coordinates to global image coordinates
                     global_box = [x + x1, y + y1, x + x2, y + y2]
                     detections.append((global_box, conf, cls))
-        
+
+        # --- FULL-FRAME PASS ---
+        # The sliding window can split or downscale a medium / large object so it
+        # scores below threshold in every window (e.g. a key fob that spans two
+        # windows). Also run the whole image once (YOLO letterboxes it to 640);
+        # NMS below removes any duplicates between this pass and the window passes.
+        full_results = model.predict(image_array, conf=self.conf_thresh, verbose=False)
+        for box in full_results[0].boxes:
+            conf = float(box.conf)
+            cls = int(box.cls)
+            (x1, y1, x2, y2) = box.xyxy[0].tolist()
+            detections.append(([x1, y1, x2, y2], conf, cls))
+
         print(f"Found {len(detections)} raw detections before NMS")
         
         # --- APPLY NMS ---
@@ -300,6 +313,15 @@ class ImageAnnotator:
 model_router = ModelRouter()
 cv_interface = CVModelInterface()
 image_annotator = ImageAnnotator()
+
+# Directory of this file, used to locate the bundled frontend
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+@app.route('/')
+def index():
+    """Serve the chat frontend so the whole app ships as one deployable unit."""
+    return send_from_directory(BASE_DIR, 'lost-item-chat.html')
 
 
 @app.route('/api/find-item', methods=['POST'])
